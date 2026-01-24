@@ -1,5 +1,3 @@
-# ui/ventana_principal.py (actualizado)
-
 import tkinter as tk
 from ui.panel_entrada import PanelEntrada
 from ui.panel_tablas import PanelTablas
