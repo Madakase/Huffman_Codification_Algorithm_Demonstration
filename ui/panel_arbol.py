@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from utils.visualizacion import preparar_datos_visualizacion
 
-class PanelTablas(tk.Frame):
+class PanelArbol(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -9,34 +9,58 @@ class PanelTablas(tk.Frame):
         # Título
         self.label_titulo = tk.Label(
             self,
-            text="Tablas de análisis",
+            text="Árbol de Huffman",
             font=("Arial", 13, "bold")
         )
         self.label_titulo.pack(pady=5)
 
-        # Tabla
-        columnas = ("Simbolo", "Frecuencia", "Probabilidad", "Codigo")
+        # Canvas
+        self.canvas = tk.Canvas(self, bg="white")
+        self.canvas.pack(fill=tk.BOTH, expand=True)
 
-        self.tabla = ttk.Treeview(self, columns=columnas, show="headings", height=20)
+    def limpiar(self):
+        self.canvas.delete("all")
 
-        for col in columnas:
-            self.tabla.heading(col, text=col)
-            self.tabla.column(col, width=100, anchor="center")
+    def dibujar_arbol(self, raiz):
+        """
+        Dibuja el árbol de Huffman en el Canvas.
+        """
+        self.limpiar()
 
-        self.tabla.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        if raiz is None:
+            return
 
-    def limpiar_tabla(self):
-        for fila in self.tabla.get_children():
-            self.tabla.delete(fila)
+        datos = preparar_datos_visualizacion(raiz)
+        posiciones = datos["posiciones"]
+        conexiones = datos["conexiones"]
 
-    def actualizar_tablas(self, frecuencias, probabilidades, codigos):
-        self.limpiar_tabla()
+        # Dibujar conexiones
+        for padre, hijo, bit in conexiones:
+            x1, y1 = posiciones[padre]
+            x2, y2 = posiciones[hijo]
 
-        simbolos = set(frecuencias.keys()) | set(codigos.keys())
+            self.canvas.create_line(x1, y1, x2, y2, width=2)
 
-        for s in simbolos:
-            freq = frecuencias.get(s, 0)
-            prob = probabilidades.get(s, 0)
-            cod = codigos.get(s, "")
+            # Etiqueta del bit (0 o 1)
+            xm = (x1 + x2) // 2
+            ym = (y1 + y2) // 2
+            self.canvas.create_text(xm, ym - 5, text=bit, font=("Arial", 9))
 
-            self.tabla.insert("", tk.END, values=(s, freq, round(prob, 5), cod))
+        # Dibujar nodos
+        for nodo, (x, y) in posiciones.items():
+            r = 18
+
+            # Círculo del nodo
+            self.canvas.create_oval(
+                x - r, y - r, x + r, y + r,
+                fill="#dff0ff",
+                outline="black"
+            )
+
+            # Texto del nodo
+            if nodo.simbolo is not None:
+                texto = f"{nodo.simbolo}\n{nodo.frecuencia}"
+            else:
+                texto = f"{nodo.frecuencia}"
+
+            self.canvas.create_text(x, y, text=texto, font=("Arial", 9, "bold"))
