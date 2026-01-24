@@ -85,3 +85,29 @@ def validar_frecuencias(frecuencias):
             return False
 
     return True
+
+def preparar_datos_visualizacion(arbol):
+    """
+    Prepara los datos del árbol de Huffman para su representación visual.
+    Convierte la estructura de nodos en una forma representable por la UI.
+    """
+
+    datos = []
+
+    def recorrer(nodo, nivel=0, posicion=0):
+        if nodo is None:
+            return
+
+        datos.append({
+            "simbolo": nodo.simbolo,
+            "frecuencia": nodo.frecuencia,
+            "nivel": nivel,
+            "posicion": posicion,
+            "es_hoja": nodo.es_hoja()
+        })
+
+        recorrer(nodo.izquierda, nivel + 1, posicion * 2)
+        recorrer(nodo.derecha, nivel + 1, posicion * 2 + 1)
+
+    recorrer(arbol)
+    return datos
