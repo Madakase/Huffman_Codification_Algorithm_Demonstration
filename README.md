@@ -1,1 +1,0 @@
-# Huffman_Codification_Algorithm_Demonstration
